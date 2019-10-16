@@ -13,11 +13,17 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
-});
+//Route::middleware('auth:api')->get('/user', function (Request $request) {
+//    return $request->user();
+//});
+//
+//Route::get('/user/list',function (Request $request){
+//    $ulist = new App\Http\Controllers\Api\UserController();
+//    return $ulist->list();
+//});
 
-Route::get('/user/list',function (Request $request){
-    $ulist = new App\Http\Controllers\Api\UserController();
-    return $ulist->list();
-});
+Route::get('/user/list','Api\UserController@list');
+Route::post('/user/add','Api\UserController@add');
+Route::post('/user/login','Api\UserController@login');
+Route::post('/upload/uploadimg','Api\MyUpDownController@upimage');
+Route::get('/drawer/data','Api\UserController@drawer');

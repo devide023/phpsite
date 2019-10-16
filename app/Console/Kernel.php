@@ -2,6 +2,8 @@
 
 namespace App\Console;
 
+use App\Jobs\testjob;
+use App\Models\User;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -26,6 +28,12 @@ class Kernel extends ConsoleKernel
     {
         // $schedule->command('inspire')
         //          ->hourly();
+//        $schedule->job(new testjob())->everyMinute()->runInBackground();
+        $schedule->call(function (){
+            $user = new User();
+            $user->fill(['username'=>'admin','userpwd'=>encrypt('a')]);
+            $user->save();
+        })->everyMinute()->runInBackground();
     }
 
     /**

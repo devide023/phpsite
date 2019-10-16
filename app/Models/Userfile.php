@@ -31,6 +31,7 @@ class Userfile extends Model
     protected $table='userfile';
     protected $primaryKey='id';
     public $timestamps =false;
+    protected $guarded=[];
 
     public function user()
     {

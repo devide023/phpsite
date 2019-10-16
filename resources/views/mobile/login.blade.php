@@ -76,14 +76,26 @@
             method: 'POST',
             data: data,
             dataType: 'json',
-            success: function (res) {
+            success: function (res,status,xhr) {
                 console.log(res);
+                console.log(status);
+                console.log(xhr);
                 if (res.state === 1) {
                     myApp.alert(res.msg, '提示', function () {
                         window.location.href = '/m';
                     });
                 } else {
                     myApp.alert(res.msg, '提示');
+                }
+            },
+            complete:function(xhr, status){
+                if(status!==200){
+                    var errors =JSON.parse(xhr.response).errors;
+                    var errorlist='';
+                    Object.values(errors).forEach(function (item) {
+                        errorlist+=item[0]+'\r\n';
+                    });
+                    myApp.alert(errorlist, '提示');
                 }
             }
         });

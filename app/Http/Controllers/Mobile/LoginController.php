@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Mobile;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\loginform;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -14,7 +15,7 @@ class LoginController extends Controller
         return view('mobile.login');
     }
 
-    public function check_login(Request $request)
+    public function check_login(loginform $request)
     {
         $username = $request->username;
         $entity = User::where('username','=',$username)->firstOrFail();
