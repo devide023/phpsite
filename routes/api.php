@@ -21,9 +21,25 @@ use Illuminate\Http\Request;
 //    $ulist = new App\Http\Controllers\Api\UserController();
 //    return $ulist->list();
 //});
+Route::group(['namespace'=>'Api','prefix'=>'user'],function (){
+    Route::post('list','UserController@list');
+    Route::post('add','UserController@add');
+    Route::post('addrole','UserController@add_user_role');
+});
 
-Route::get('/user/list','Api\UserController@list');
-Route::post('/user/add','Api\UserController@add');
+Route::group(['namespace'=>'Api','prefix'=>'role'],function(){
+    Route::post('list','RoleController@list');
+    Route::post('add','RoleController@add');
+    Route::post('roleusers','RoleController@roleusers');
+    Route::post('rolemenus','RoleController@rolemenus');
+});
+
+Route::group(['namespace'=>'Api','prefix'=>'menu'],function(){
+    Route::post('list','MenuController@list');
+    Route::post('add','MenuController@add');
+    Route::post('menuroles','MenuController@menuroles');
+});
+
 Route::post('/user/login','Api\UserController@login');
 Route::post('/upload/uploadimg','Api\MyUpDownController@upimage');
 Route::get('/drawer/data','Api\UserController@drawer');
