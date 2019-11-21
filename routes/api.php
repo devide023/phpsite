@@ -21,10 +21,19 @@ use Illuminate\Http\Request;
 //    $ulist = new App\Http\Controllers\Api\UserController();
 //    return $ulist->list();
 //});
+Route::group(['prefix'=>'index','namespace'=>'Api'],function (){
+    Route::get('data','IndexController@alldata');
+});
 Route::group(['namespace'=>'Api','prefix'=>'user'],function (){
     Route::post('list','UserController@list');
     Route::post('add','UserController@add');
     Route::post('addrole','UserController@add_user_role');
+    Route::post('actions','UserController@actions');
+    Route::get('find','UserController@finduser');
+    Route::post('modify','UserController@edituser');
+    Route::post('setpwd','UserController@changepwd');
+    Route::get('search','UserController@search');
+    Route::get('del','UserController@remove');
 });
 
 Route::group(['namespace'=>'Api','prefix'=>'role'],function(){
