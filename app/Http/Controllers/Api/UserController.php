@@ -3,11 +3,14 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Menu;
 use App\Models\Role;
+use App\Models\Role_menu;
 use App\Models\User;
 use App\Models\User_role;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use mysql_xdevapi\Exception;
 
@@ -32,15 +35,15 @@ class UserController extends Controller
             return $q->where('address', 'like', '%' . $request->address . '%');
         });
         $query->when($request->ksrq != null && $request->jsrq != null, function (Builder $q) use ($request) {
-            return $q->whereDate('birthdate', '>=', $request->ksrq)->whereDate('birthdate', '<=', $request->jsrq);
+            return $q->whereDate('birthday', '>=', $request->ksrq)->whereDate('birthday', '<=', $request->jsrq);
         });
-        $list = $query->select(['id', 'usercode', 'username', 'sex', 'tel', 'phone', 'address', 'birthdate', 'status', 'headimg'])->orderByDesc('id');
+        $list = $query->select(['*'])->orderByDesc('id');
         $list = $list->paginate($pagesize);
 
         if ($list) {
-            return json_encode(['code' => 1, 'msg' => 'ok', 'list' => $list]);
+            return ['code' => 1, 'msg' => 'ok', 'list' => $list];
         } else {
-            return json_encode(['code' => 0, 'msg' => '错误', 'list' => null]);
+            return ['code' => 0, 'msg' => '错误', 'list' => null];
         }
 
     }
@@ -48,17 +51,32 @@ class UserController extends Controller
     public function add(Request $request)
     {
         try {
-            $request['userpwd'] = encrypt($request->userpwd);
-            $request['addtime'] = now();
-            $user = new User($request->all());
-            $ret = $user->saveOrFail();
+            $user = new User([
+                'status' => 1,
+                'userid'=>rand(1,655350000),
+                'sex' => $request->sex,
+                'usercode' => $request->usercode,
+                'username' => $request->username,
+                'laravelpwd' => encrypt($request->laravelpwd),
+                'tel' => $request->tel,
+                'phone' => $request->phone,
+                'address' => $request->address,
+                'birthday'=>$request->birthday,
+                'headimg'=>$request->headimg,
+                'company_id'=>$request->company_id,
+                'department_id'=>$request->department_id,
+                'position'=>$request->position,
+                'login_way'=>$request->login_way,
+                'add_time'=>now()
+            ]);
+            $ret = $user->save();
             if ($ret != null) {
-                return json_encode(['code' => 1, 'msg' => '数据保存成功', 'userinfo' => $user]);
+                return ['code' => 1, 'msg' => '数据保存成功', 'userinfo' => $user];
             } else {
-                return json_encode(['code' => 0, 'msg' => '数据保存失败']);
+                return ['code' => 0, 'msg' => '数据保存失败'];
             }
         } catch (Exception $e) {
-            return json_encode(['code' => 0, 'msg' => $e->getMessage()]);
+            return ['code' => 0, 'msg' => $e->getMessage()];
         }
     }
 
@@ -73,9 +91,9 @@ class UserController extends Controller
             $user = User::find($request->userid);
             $ret = $user->userroles()->saveMany($data);
             if ($ret != null) {
-                return json_encode(['code' => 1, 'msg' => '数据保存成功']);
+                return ['code' => 1, 'msg' => '数据保存成功'];
             } else {
-                return json_encode(['code' => 0, 'msg' => '数据保存失败']);
+                return ['code' => 0, 'msg' => '数据保存失败'];
             }
         } catch (Exception $e) {
             throw  $e;
@@ -88,15 +106,15 @@ class UserController extends Controller
         $usercode = $request->usercode;
         $user = User::where('usercode', '=', $usercode)->first();
         if ($user != null) {
-            $depwd = decrypt($user->userpwd);
-            $user['oldpwd']=$depwd;
+            $depwd = decrypt($user->laravelpwd);
+            $user['oldpwd'] = $depwd;
             if ($depwd == $request->userpwd) {
-                return json_encode(['code' => 1, 'msg' => '登录成功', 'user' => $user]);
+                return ['code' => 1, 'msg' => '登录成功', 'user' => $user];
             } else {
-                return json_encode(['code' => 0, 'msg' => '登录失败,用户名或密码错误', 'user' => null]);
+                return ['code' => 0, 'msg' => '登录失败,用户名或密码错误', 'user' => null];
             }
         } else {
-            return json_encode(['code' => 0, 'msg' => '登录失败,用户名错误', 'user' => null]);
+            return ['code' => 0, 'msg' => '登录失败,用户名错误', 'user' => null];
         }
     }
 
@@ -105,7 +123,7 @@ class UserController extends Controller
         try {
             $uid = $request->userid;
             $list = [['title' => '修改', 'code' => 'edit', 'icon' => 'edit'], ['title' => '删除', 'code' => 'delete', 'icon' => 'remove'], ['title' => '禁用', 'code' => 'diabel', 'icon' => 'diabel'], ['title' => '启用', 'code' => 'enabel', 'icon' => 'enabel'],];
-            return json_encode(['code' => 1, 'msg' => 'ok', 'actions' => $list]);
+            return ['code' => 1, 'msg' => 'ok', 'actions' => $list];
         } catch (Exception $exception) {
             throw  $exception;
         }
@@ -116,8 +134,8 @@ class UserController extends Controller
     {
         try {
             $uid = $request->userid;
-            return json_encode(User::find($uid));
-
+            $user = User::where('id', '=', $uid)->first();
+            return $user;
         } catch (Exception $exception) {
             throw  $exception;
         }
@@ -130,12 +148,12 @@ class UserController extends Controller
             $uid = $request->userid;
             $newpwd = $request->newpwd;
             $user = User::find($uid);
-            $user->userpwd = encrypt($newpwd);
+            $user->laravelpwd = encrypt($newpwd);
             $ret = $user->save();
             if ($ret) {
-                return json_encode(['code' => 1, 'msg' => '密码重置成功！']);
+                return ['code' => 1, 'msg' => '密码重置成功！'];
             } else {
-                return json_encode(['code' => 0, 'msg' => '密码重置失败！']);
+                return ['code' => 0, 'msg' => '密码重置失败！'];
             }
 
         } catch (Exception $exception) {
@@ -153,10 +171,10 @@ class UserController extends Controller
             $user->tel = $request->tel;
             $user->phone = $request->phone;
             $user->address = $request->address;
-            $user->birthdate = $request->birthdate;
+            $user->birthday = $request->birthday;
             $user->sex = $request->sex;
             $user->save();
-            return json_encode(['code' => 1, 'msg' => '数据保存成功']);
+            return ['code' => 1, 'msg' => '数据保存成功'];
 
         } catch (Exception $exception) {
             throw  $exception;
@@ -169,7 +187,7 @@ class UserController extends Controller
         try {
             $key = $request->keywords;
             $query = User::query();
-            $list = $query->where('username', 'like', '%' . $key . '%')->orWhere('usercode', 'like', '%' . $key . '%')->orWhere('address', 'like', '%' . $key . '%')->orWhere('tel', 'like', '%' . $key . '%')->orWhere('phone', 'like', '%' . $key . '%')->get()->toArray();
+            $list = $query->where('username', 'like', '%' . $key . '%')->orWhere('usercode', 'like', '%' . $key . '%')->orWhere('address', 'like', '%' . $key . '%')->orWhere('tel', 'like', '%' . $key . '%')->orWhere('phone', 'like', '%' . $key . '%')->distinct()->get()->toArray();
 
             return json_encode(['code' => 1, 'msg' => 'ok', 'userlist' => $list]);
 
@@ -198,13 +216,21 @@ class UserController extends Controller
 
     public function drawer(Request $request)
     {
-        return json_encode([
-            ['title' => '系统管理', 'icon' => 'person', 'isopen' => false, 'child' => [['title' => '用户管理', 'icon' => 'settings','path'=>'/user/list'], ['title' => '菜单管理', 'icon' => 'settings'], ['title' => '角色管理', 'icon' => 'settings'],]],
-            ['title' => '产品管理', 'icon' => 'product', 'isopen' => false, 'child' => [['title' => '产品列表', 'icon' => 'pub'], ['title' => '线路列表', 'icon' => 'list'],]],
-            ['title' => '订单管理', 'isopen' => false, 'icon' => 'order', 'child' => [['title' => '订单列表'], ['title' => '订单结算'],]],
-            ['title' => '通知管理', 'icon' => 'news', 'isopen' => false, 'child' => [['title' => '消息'], ['title' => '通知'], ['title' => '公告'],]],
-            ['title' => '报表管理', 'icon' => 'report', 'isopen' => false, 'child' => [['title' => '日期报表'], ['title' => '报表1'], ['title' => '报表2'], ['title' => '报表3'],]],
-            ['title' => '发票管理', 'icon' => 'report', 'isopen' => false, 'child' => [['title' => '发票列表'], ['title' => '发票验证'],]],
-            ['title' => '文件管理', 'icon' => 'file', 'isopen' => false, 'child' => [['title' => '文件列表'], ['title' => '文件列表1'], ['title' => '文件列表2'],]]]);
+        $uid = $request->userid;
+        $menus = Menu::join('role_menu', 'menu.id', '=', 'role_menu.menu_id')->join('user_role', 'user_role.role_id', '=', 'role_menu.role_id')->where('user_role.user_id', '=', $uid)->select(['menu.id', 'menu.pid', 'menu.code', 'menu.title', 'menu.flutter_router'])->distinct()->get()->toArray();
+        $roots = array_filter($menus, function ($item) {
+            return $item['pid'] == 0 && $item['title'] != 'Home';
+        });
+        $list = array();
+        foreach ($roots as $root) {
+            $subitems = array_filter($menus, function ($menu) use ($root) {
+                return $menu['pid'] == $root['id'];
+            });
+            $root['isopen'] = false;
+            $root['child'] = array_values($subitems);
+            array_push($list, $root);
+        }
+
+        return $list;
     }
 }

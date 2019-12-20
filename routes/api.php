@@ -49,6 +49,25 @@ Route::group(['namespace'=>'Api','prefix'=>'menu'],function(){
     Route::post('menuroles','MenuController@menuroles');
 });
 
+Route::group(['prefix'=>'organize','namespace'=>'Api'],function (){
+    Route::get('list','OrganizeController@list');
+});
+
 Route::post('/user/login','Api\UserController@login');
 Route::post('/upload/uploadimg','Api\MyUpDownController@upimage');
 Route::get('/drawer/data','Api\UserController@drawer');
+
+Route::group(['prefix'=>'gold05','namespace'=>'Api\Gold05'],function (){
+    Route::get('menutype','BaseInfoController@menutyp');
+    Route::get('menuplace','BaseInfoController@menuplace');
+    Route::get('shipclass','BaseInfoController@shipclass');
+    Route::get('xmtype','BaseInfoController@xmtype');
+    Route::get('menucode','BaseInfoController@menucode');
+    Route::get('index','BaseInfoController@index');
+    Route::get('saledata','BaseInfoController@saledata');
+    Route::post('menubill','BaseInfoController@menubill');
+});
+
+Route::group(['prefix'=>'mysql/user','namespace'=>'Api\MySql'],function (){
+    Route::get('list','UserController@list');
+});
