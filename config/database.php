@@ -102,6 +102,18 @@ return [
             'prefix' => '',
             'prefix_indexes' => true,
         ],
+        'film' => [
+            'driver' => 'sqlsrv',
+            'url' => env('DATABASE_URL'),
+            'host' => env('DB_HOST_Film', 'localhost'),
+            'port' => env('DB_PORT_Film', '1433'),
+            'database' => env('DB_DATABASE_Film', 'film'),
+            'username' => env('DB_USERNAME_Film', 'sa'),
+            'password' => env('DB_PASSWORD_Film', '123456'),
+            'charset' => 'utf8',
+            'prefix' => 'sys_',
+            'prefix_indexes' => true,
+        ],
 
     ],
 
