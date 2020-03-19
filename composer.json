@@ -40,7 +40,8 @@
         },
         "classmap": [
             "database/seeds",
-            "database/factories"
+            "database/factories",
+            "app/mycodes"
         ]
     },
     "autoload-dev": {
@@ -60,6 +61,10 @@
         ],
         "post-create-project-cmd": [
             "@php artisan key:generate --ansi"
+        ],
+        "post-update-cmd": [
+            "@php artisan ide-helper:generate",
+            "@php artisan ide-helper:meta"
         ]
     }
 }

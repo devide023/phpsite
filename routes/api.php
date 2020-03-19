@@ -54,6 +54,10 @@ Route::group(['prefix' => 'organize', 'namespace' => 'Api'], function () {
 });
 
 Route::post('/user/login', 'Api\UserController@login');
+Route::match(['post','get'],'/user/logout', 'Api\UserController@logout');
+Route::match(['post','get'],'/freshtoken','Api\UserController@refreshToken');
+Route::match(['post','get'],'/checktoken','Api\UserController@checktoken');
+Route::match(['post','get'],'/test','Api\UserController@test');
 Route::post('/upload/uploadimg', 'Api\MyUpDownController@upimage');
 Route::get('/drawer/data', 'Api\UserController@drawer');
 
@@ -70,7 +74,7 @@ Route::group(['prefix' => 'gold05', 'namespace' => 'Api\Gold05'], function () {
     Route::post('menubill', 'BaseInfoController@menubill');
 });
 
-Route::group(['prefix' => 'film', 'namespace' => 'Api\Film'], function () {
+Route::group(['prefix' => 'film', 'namespace' => 'Api\Film','middleware' => 'auth.api'], function () {
     Route::get('list', 'FilmController@list');
     Route::get('detail', 'FilmController@detail');
 });
@@ -78,3 +82,6 @@ Route::group(['prefix' => 'film', 'namespace' => 'Api\Film'], function () {
 Route::group(['prefix' => 'mysql/user', 'namespace' => 'Api\MySql'], function () {
     Route::get('list', 'UserController@list');
 });
+
+
+

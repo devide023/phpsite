@@ -13,7 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use mysql_xdevapi\Exception;
-
+use cypher;
 class UserController extends Controller
 {
     //
@@ -51,24 +51,8 @@ class UserController extends Controller
     public function add(Request $request)
     {
         try {
-            $user = new User([
-                'status' => 1,
-                'userid'=>rand(1,655350000),
-                'sex' => $request->sex,
-                'usercode' => $request->usercode,
-                'username' => $request->username,
-                'laravelpwd' => encrypt($request->laravelpwd),
-                'tel' => $request->tel,
-                'phone' => $request->phone,
-                'address' => $request->address,
-                'birthday'=>$request->birthday,
-                'headimg'=>$request->headimg,
-                'company_id'=>$request->company_id,
-                'department_id'=>$request->department_id,
-                'position'=>$request->position,
-                'login_way'=>$request->login_way,
-                'add_time'=>now()
-            ]);
+
+            $user = new User(['status' => 1, 'userid' => rand(1, 655350000), 'sex' => $request->sex, 'usercode' => $request->usercode, 'username' => $request->username, 'laravelpwd' => encrypt($request->laravelpwd), 'tel' => $request->tel, 'phone' => $request->phone, 'address' => $request->address, 'birthday' => $request->birthday, 'headimg' => $request->headimg, 'company_id' => $request->company_id, 'department_id' => $request->department_id, 'position' => $request->position, 'login_way' => $request->login_way, 'add_time' => date('Y-m-d H:i:s', time()), 'token' => encrypt($request->usercode . '@' . $request->laravelpwd), 'token_outtime' => date('Y-m-d H:i:s', time())]);
             $ret = $user->save();
             if ($ret != null) {
                 return ['code' => 1, 'msg' => '数据保存成功', 'userinfo' => $user];
@@ -116,6 +100,49 @@ class UserController extends Controller
         } else {
             return ['code' => 0, 'msg' => '登录失败,用户名错误', 'user' => null];
         }
+    }
+
+    public function refreshToken(Request $request)
+    {
+        try {
+            $tool = new \tools();
+            $result = $tool->freshtoken($request);
+            var_dump($result);
+            if($result){
+                return [
+                    'code'=>1,
+                    'msg'=>'Token刷新成功'
+                ];
+            }
+            else{
+                return [
+                    'code'=>0,
+                    'msg'=>'Token刷新失败'
+                ];
+            }
+        } catch (Exception $exception) {
+            throw  $exception;
+        }
+
+    }
+    public function checktoken(Request $request)
+    {
+
+        $tool = new \tools();
+        $result = $tool->checktoken($request);
+        return $result;
+    }
+
+    public function logout(Request $request)
+    {
+        try {
+
+
+
+        } catch (Exception $exception) {
+            throw  $exception;
+        }
+
     }
 
     public function actions(Request $request)
@@ -233,4 +260,17 @@ class UserController extends Controller
 
         return $list;
     }
+
+    public function test(Request $request)
+    {
+        try {
+           $a=cypher::passport_encrypt('111222@258456');
+           var_dump($a);
+           var_dump(cypher::passport_decrypt($a));
+        } catch (Exception $exception) {
+            throw  $exception;
+        }
+
+    }
+
 }
