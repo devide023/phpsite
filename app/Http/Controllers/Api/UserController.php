@@ -52,7 +52,7 @@ class UserController extends Controller
     {
         try {
 
-            $user = new User(['status' => 1, 'userid' => rand(1, 655350000), 'sex' => $request->sex, 'usercode' => $request->usercode, 'username' => $request->username, 'laravelpwd' => encrypt($request->laravelpwd), 'tel' => $request->tel, 'phone' => $request->phone, 'address' => $request->address, 'birthday' => $request->birthday, 'headimg' => $request->headimg, 'company_id' => $request->company_id, 'department_id' => $request->department_id, 'position' => $request->position, 'login_way' => $request->login_way, 'add_time' => date('Y-m-d H:i:s', time()), 'token' => encrypt($request->usercode . '@' . $request->laravelpwd), 'token_outtime' => date('Y-m-d H:i:s', time())]);
+            $user = new User(['status' => 1, 'userid' => rand(1, 655350000), 'sex' => $request->sex, 'usercode' => $request->usercode, 'username' => $request->username, 'laravelpwd' => cypher::edauth($request->laravelpwd,true), 'tel' => $request->tel, 'phone' => $request->phone, 'address' => $request->address, 'birthday' => $request->birthday, 'headimg' => $request->headimg, 'company_id' => $request->company_id, 'department_id' => $request->department_id, 'position' => $request->position, 'login_way' => $request->login_way, 'add_time' => date('Y-m-d H:i:s', time()), 'token' => cypher::edauth($request->usercode . '@' . $request->laravelpwd,true), 'token_outtime' => date('Y-m-d H:i:s', time())]);
             $ret = $user->save();
             if ($ret != null) {
                 return ['code' => 1, 'msg' => '数据保存成功', 'userinfo' => $user];
@@ -264,9 +264,9 @@ class UserController extends Controller
     public function test(Request $request)
     {
         try {
-           $a=cypher::passport_encrypt('111222@258456');
+           $a=cypher::edauth('111@222',true,'devide@126.com');
            var_dump($a);
-           var_dump(cypher::passport_decrypt($a));
+           var_dump(cypher::edauth($a,false,'devide@126.com'));
         } catch (Exception $exception) {
             throw  $exception;
         }

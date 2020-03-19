@@ -9,17 +9,20 @@ class tools
     {
         $token = $request->token;
         if (!is_null($token)) {
-            $codepwd = decrypt($token);
+            $codepwd = cypher::edauth($token,false);
             $temp_array = explode('@', $codepwd);
             if (count($temp_array) == 2) {
                 $code = $temp_array[0];
                 $pwd = $temp_array[1];
-                $user = User::where('usercode', $code)->get()->first();
-                $newuser = User::find($user->id);
-                $newuser['token'] = encrypt($user->usercode . '@' . $pwd);
-                $newuser['token_outtime'] = now();
-                $res = $newuser->save();
-                return $res;
+                $user = User::where('token', $token)->get()->first();
+                if (!is_null($user)) {
+                    $user['token'] = cypher::edauth($user->usercode . '@' . $pwd,true);
+                    $user['token_outtime'] = now();
+                    $res = $user->save();
+                    return $res;
+                } else {
+                    return false;
+                }
             }
         } else {
             return false;
@@ -31,7 +34,7 @@ class tools
         try {
             $token = $request->token;
             if (!is_null($token)) {
-                $codepwd = decrypt($token);
+                $codepwd = cypher::edauth($token,false);
                 $users = User::where('token', $token)->get();
                 if (count($users) > 0) {
                     $temp_array = explode('@', $codepwd);
@@ -42,7 +45,7 @@ class tools
                         $tokentime = strtotime('+24 hours', strtotime($user->token_outtime));
                         $dif = $tokentime - time();
                         if ($dif > 0) {
-                            $temp_pwd = decrypt($user->laravelpwd);
+                            $temp_pwd = cypher::edauth($user->laravelpwd,false);
                             if ($temp_pwd == $pwd) {
                                 return ['code' => 1, 'msg' => 'Token is OK'];
                             } else {
