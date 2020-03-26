@@ -25,7 +25,7 @@ Route::group(['prefix' => 'index', 'namespace' => 'Api'], function () {
     Route::get('data', 'IndexController@alldata');
 });
 Route::group(['namespace' => 'Api', 'prefix' => 'user'], function () {
-    Route::post('list', 'UserController@list');
+    Route::match(['post','get'],'list', 'UserController@list')->middleware('auth:api');
     Route::post('add', 'UserController@add');
     Route::post('addrole', 'UserController@add_user_role');
     Route::post('actions', 'UserController@actions');
@@ -53,11 +53,11 @@ Route::group(['prefix' => 'organize', 'namespace' => 'Api'], function () {
     Route::get('list', 'OrganizeController@list');
 });
 
-Route::post('/user/login', 'Api\UserController@login');
-Route::match(['post','get'],'/user/logout', 'Api\UserController@logout');
+Route::match(['post','get'],'/user/login', 'Api\UserController@login');
+Route::match(['post','get'],'/user/logout', 'Api\UserController@logout')->middleware('auth:api');
 Route::match(['post','get'],'/freshtoken','Api\UserController@refreshToken');
 Route::match(['post','get'],'/checktoken','Api\UserController@checktoken');
-Route::match(['post','get'],'/test','Api\UserController@test');
+Route::match(['post','get'],'/test','Api\UserController@test')->middleware('auth:api');
 Route::post('/upload/uploadimg', 'Api\MyUpDownController@upimage');
 Route::get('/drawer/data', 'Api\UserController@drawer');
 
@@ -74,7 +74,7 @@ Route::group(['prefix' => 'gold05', 'namespace' => 'Api\Gold05'], function () {
     Route::post('menubill', 'BaseInfoController@menubill');
 });
 
-Route::group(['prefix' => 'film', 'namespace' => 'Api\Film','middleware' => 'auth.api'], function () {
+Route::group(['prefix' => 'film', 'namespace' => 'Api\Film'], function () {
     Route::get('list', 'FilmController@list');
     Route::get('detail', 'FilmController@detail');
 });

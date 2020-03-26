@@ -61,7 +61,7 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\User whereUserpwd($value)
  * @mixin \Eloquent
  */
-class User extends Model
+class User extends \Illuminate\Foundation\Auth\User
 {
     //
     protected $connection='sqlsrv';
